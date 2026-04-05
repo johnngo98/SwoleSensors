@@ -39,29 +39,37 @@ async function fetchSetData(user, week, workout, set) {
 function renderWorkoutGraph(sensorData, chartTitle) {
     const ctx = document.getElementById('workoutChart').getContext('2d');
 
-    // Destroy the old chart before rendering a new one to prevent glitching
+    // Destroy the old chart before rendering a new one
     if (currentChart) {
         currentChart.destroy();
     }
 
-    // Extract columns for the graph axes. 
-    // IMPORTANT: Verify that 'time' and 'gForce' exactly match the column headers in your CSV.
-    const timeLabels = sensorData.map(row => row.time); 
-    const forceData = sensorData.map(row => row.gForce); 
+    // 1. Use 'seconds_elapsed' for a clean X-axis (e.g., 1s, 2s, 3s...)
+    const timeLabels = sensorData.map(row => parseFloat(row.seconds_elapsed).toFixed(2)); 
+
+    // 2. Calculate Total G-Force for the Y-axis
+    const forceData = sensorData.map(row => {
+        // Calculate the total magnitude vector (sqrt(x^2 + y^2 + z^2))
+        const magnitude = Math.sqrt((row.x * row.x) + (row.y * row.y) + (row.z * row.z));
+        
+        // Divide by 9.81 to convert meters per second squared (m/s^2) into G-Force
+        return magnitude / 9.81; 
+    }); 
+    // -----------------------
 
     // Build the new chart
     currentChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: timeLabels, // X-Axis
+            labels: timeLabels, // Clean seconds on X-Axis
             datasets: [{
                 label: 'Total Acceleration (G-Force)',
-                data: forceData,    // Y-Axis
+                data: forceData,    // Calculated G-Force on Y-Axis
                 borderColor: 'rgba(54, 162, 235, 1)', 
                 backgroundColor: 'rgba(54, 162, 235, 0.1)',
                 borderWidth: 2,
-                pointRadius: 0, // Hides individual data points for a smooth line
-                tension: 0.2, // Adds a slight curve to the line
+                pointRadius: 0, // Hides individual dots for a smooth line
+                tension: 0.2, // Adds a slight curve
                 fill: true
             }]
         },
@@ -75,8 +83,14 @@ function renderWorkoutGraph(sensorData, chartTitle) {
                 }
             },
             scales: {
-                x: { title: { display: true, text: 'Time (Seconds)' } },
-                y: { title: { display: true, text: 'Acceleration (G-Force)' } }
+                x: { 
+                    title: { display: true, text: 'Time (Seconds)' },
+                    ticks: { maxTicksLimit: 20 } // Prevents the X-axis from looking too crowded
+                },
+                y: { 
+                    title: { display: true, text: 'Acceleration (G-Force)' },
+                    beginAtZero: true
+                }
             }
         }
     });
