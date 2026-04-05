@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwoleSensors Dashboard</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="dashboard-container">
+    <h2>Swole Sensors: Kinematic Analysis</h2>
+    
+    <div class="controls">
+        <select id="userSelect">
+            <option value="john">John</option>
+            <option value="tyrus">Tyrus</option>
+            <option value="jesse">Jesse</option>
+        </select>
+
+        <select id="weekSelect">
+            <option value="week1">Week 1</option>
+            <option value="week2">Week 2</option>
+            <option value="week3">Week 3</option>
+            <option value="week4">Week 4</option>
+        </select>
+
+        <select id="workoutSelect">
+            <option value="bench">Bench Press</option>
+            <option value="squat">Squat</option>
+            <option value="deadlift">Deadlift</option>
+            <option value="overhead">Overhead Press</option>
+        </select>
+
+        <select id="setSelect">
+            <option value="set1">Set 1</option>
+            <option value="set2">Set 2</option>
+            <option value="set3">Set 3</option>
+            <option value="set4">Set 4</option>
+        </select>
+
+        <button id="loadDataBtn">Load Graph</button>
+    </div>
+
+    <div id="errorDisplay" class="error-message">Data file not found for this selection.</div>
+
+    <canvas id="workoutChart"></canvas>
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
