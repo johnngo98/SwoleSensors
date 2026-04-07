@@ -65,31 +65,51 @@ function renderWorkoutGraph(sensorData, chartTitle) {
             datasets: [{
                 label: 'Total Acceleration (G-Force)',
                 data: forceData,    // Calculated G-Force on Y-Axis
-                borderColor: 'rgba(54, 162, 235, 1)', 
-                backgroundColor: 'rgba(54, 162, 235, 0.1)',
-                borderWidth: 2,
+                borderColor: '#00f2fe', 
+                backgroundColor: 'rgba(0, 242, 254, 0.1)',
+                borderWidth: 3,
                 pointRadius: 0, // Hides individual dots for a smooth line
-                tension: 0.2, // Adds a slight curve
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#4facfe',
+                tension: 0.4, // Adds a smooth curve
                 fill: true
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 title: {
                     display: true,
                     text: chartTitle,
-                    font: { size: 16 }
+                    color: '#ffffff',
+                    font: { size: 18, family: "'Outfit', sans-serif", weight: '600' },
+                    padding: { bottom: 20 }
+                },
+                legend: {
+                    labels: { color: '#8b92a5', font: { family: "'Outfit', sans-serif" } }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 19, 26, 0.9)',
+                    titleColor: '#00f2fe',
+                    bodyColor: '#ffffff',
+                    borderColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false
                 }
             },
             scales: {
                 x: { 
-                    title: { display: true, text: 'Time (Seconds)' },
-                    ticks: { maxTicksLimit: 20 } // Prevents the X-axis from looking too crowded
+                    title: { display: true, text: 'Time (Seconds)', color: '#8b92a5', font: { family: "'Outfit', sans-serif" } },
+                    ticks: { color: '#8b92a5', maxTicksLimit: 15 },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
                 },
                 y: { 
-                    title: { display: true, text: 'Acceleration (G-Force)' },
-                    beginAtZero: true
+                    title: { display: true, text: 'Acceleration (G-Force)', color: '#8b92a5', font: { family: "'Outfit', sans-serif" } },
+                    beginAtZero: true,
+                    ticks: { color: '#8b92a5' },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
                 }
             }
         }
@@ -121,7 +141,7 @@ async function updateDashboard() {
         renderWorkoutGraph(data, title);
     } else {
         // Show error if data is missing or path is wrong
-        errorDisplay.style.display = 'block';
+        errorDisplay.style.display = 'flex';
         if (currentChart) currentChart.destroy();
     }
 }

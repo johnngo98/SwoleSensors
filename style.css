@@ -1,44 +1,245 @@
-body { 
-    font-family: system-ui, sans-serif; 
-    padding: 20px; 
-    background-color: #f8f9fa; 
+:root {
+    --bg-dark: #0a0b10;
+    --bg-accent: #11131a;
+    --neon-blue: #00f2fe;
+    --neon-purple: #4facfe;
+    --text-main: #ffffff;
+    --text-muted: #8b92a5;
+    --glass-bg: rgba(17, 19, 26, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
 }
 
-.dashboard-container { 
-    max-width: 900px; 
-    margin: 0 auto; 
-    background: white; 
-    padding: 20px; 
-    border-radius: 8px; 
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-.controls { 
-    display: flex; 
-    gap: 15px; 
-    margin-bottom: 20px; 
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    padding: 40px 20px;
 }
 
-select, button { 
-    padding: 8px 12px; 
-    border-radius: 4px; 
-    border: 1px solid #ccc; 
+/* Background animated glow */
+.background-glow {
+    position: fixed;
+    top: -20%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(79, 172, 254, 0.15) 0%, rgba(0, 242, 254, 0) 70%);
+    z-index: -1;
+    filter: blur(80px);
+    animation: drift 15s infinite alternate ease-in-out;
 }
 
-button { 
-    background-color: #007bff; 
-    color: white; 
-    cursor: pointer; 
-    border: none; 
-    font-weight: bold; 
+@keyframes drift {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(10%, 15%); }
 }
 
-button:hover { 
-    background-color: #0056b3; 
+.dashboard-wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
-.error-message { 
-    color: red; 
-    margin-bottom: 10px; 
-    display: none; 
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeInDown 0.8s ease-out;
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+}
+
+.dashboard-header h1 span {
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.dashboard-header p {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 300;
+}
+
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-panel:hover {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+    align-items: flex-end;
+    animation: fadeInUp 0.8s ease-out 0.2s both;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.control-group {
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper::after {
+    content: "▼";
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+select {
+    width: 100%;
+    appearance: none;
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+}
+
+select option {
+    background-color: var(--bg-accent);
+    color: var(--text-main);
+}
+
+.button-group {
+    flex: 0 0 auto;
+}
+
+button {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+    color: white;
+    cursor: pointer;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+    background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+.error-message {
+    color: #ff4b4b;
+    background: rgba(255, 75, 75, 0.1);
+    border: 1px solid rgba(255, 75, 75, 0.2);
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    display: none;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.chart-wrapper {
+    padding: 30px;
+    position: relative;
+    min-height: 400px;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+canvas {
+    width: 100% !important;
+    max-height: 500px;
+}
+
+@media (max-width: 768px) {
+    .controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .button-group {
+        margin-top: 10px;
+    }
+    button {
+        width: 100%;
+        justify-content: center;
+    }
 }
