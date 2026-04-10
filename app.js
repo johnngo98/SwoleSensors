@@ -1,77 +1,115 @@
 // Keep track of the active chart instance
 let currentChart = null;
+// Cache to hold the 42MB consolidated dataset
+let globalWorkoutData = []; 
 
-/**
- * 1. Data Pipeline: Fetches and parses the CSV based on dropdown selections
- */
-async function fetchSetData(user, week, workout, set) {
-    // Matches your specific folder structure: /data/john/week1/bench/set1/TotalAcceleration.csv
-    const fileUrl = `./data/${user}/${week}/${workout}/${set}/TotalAcceleration.csv`; 
+// Data Pipeline
+// Fetches the CSV only ONCE when the page loads
+async function loadFullDataset() {
+    const fileUrl = `./data/FullData/SwoleSensor_Week2_Full.csv`; 
 
     try {
-        console.log(`Attempting to fetch: ${fileUrl}`);
-        const response = await fetch(fileUrl);
+        console.log(`Downloading full dataset: ${fileUrl}...`);
         
-        if (!response.ok) {
-            throw new Error(`File not found: ${fileUrl}`);
-        }
+        // Show loading state
+        const btn = document.getElementById('loadDataBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = 'Loading Dataset...';
+        btn.disabled = true;
+
+        const response = await fetch(fileUrl);
+        if (!response.ok) throw new Error(`File not found: ${fileUrl}`);
         
         const rawText = await response.text();
         
-        // Parse CSV text into a JSON array
+        // dynamicTyping set to false or else Javascript will corrupt the 19-digit nanosecond timestamps
         const parsedData = Papa.parse(rawText, { 
             header: true, 
-            dynamicTyping: true, 
+            dynamicTyping: false, 
             skipEmptyLines: true 
         }).data;
 
-        return parsedData;
+        globalWorkoutData = parsedData;
+        console.log(`Success! Loaded ${globalWorkoutData.length} rows into memory.`);
+        
+        // Restore button and draw the first graph
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        updateDashboard();
 
     } catch (error) {
         console.error("Data Fetch Error:", error);
-        return null; // Return null if file doesn't exist yet
+        document.getElementById('errorDisplay').style.display = 'flex';
+        document.getElementById('errorDisplay').innerHTML = `<span>Error: Could not load ${fileUrl}</span>`;
     }
 }
 
-/**
- * 2. Visualization: Renders the data using Chart.js
- */
+// Filters the global data based on dropdowns
+function getFilteredData(user, week, workout, set) {
+    if (globalWorkoutData.length === 0) return null;
+
+    // Format dropdown values to match CSV exactly
+    const targetPerson = user.toLowerCase();
+    const targetWeek = week.replace('week', ''); // "week1" -> "1"
+    let targetLift = workout.toLowerCase();
+    if (targetLift === 'overhead') targetLift = 'ohp'; // Map dropdown to CSV
+    const targetSet = set.replace('set', ''); // "set1" -> "1"
+
+    // Filter the massive array down to just the requested set
+    const filteredRows = globalWorkoutData.filter(row => {
+        return row.Person && row.Person.toLowerCase() === targetPerson &&
+               row.Week === targetWeek &&
+               row.Lift && row.Lift.toLowerCase() === targetLift &&
+               row.Set === targetSet;
+    });
+
+    if (filteredRows.length === 0) return null;
+
+    // Use BigInt to safely calculate the time elapsed from the 19-digit timestamps
+    const startTime = BigInt(filteredRows[0].time);
+
+    return filteredRows.map(row => {
+        const currentTime = BigInt(row.time);
+        const elapsedSeconds = Number(currentTime - startTime) / 1e9; // convert nanoseconds to seconds
+        
+        // Calculate Total G-Force magnitude
+        const gFx = parseFloat(row.gFx);
+        const gFy = parseFloat(row.gFy);
+        const gFz = parseFloat(row.gFz);
+        const magnitude = Math.sqrt((gFx * gFx) + (gFy * gFy) + (gFz * gFz));
+        
+        return {
+            time: elapsedSeconds.toFixed(2),
+            gForce: magnitude
+        };
+    });
+}
+
+// Chart Rendering
 function renderWorkoutGraph(sensorData, chartTitle) {
     const ctx = document.getElementById('workoutChart').getContext('2d');
 
-    // Destroy the old chart before rendering a new one
     if (currentChart) {
         currentChart.destroy();
     }
 
-    // 1. Use 'seconds_elapsed' for a clean X-axis (e.g., 1s, 2s, 3s...)
-    const timeLabels = sensorData.map(row => parseFloat(row.seconds_elapsed).toFixed(2)); 
+    const timeLabels = sensorData.map(row => row.time); 
+    const forceData = sensorData.map(row => row.gForce);
 
-    // 2. Calculate Total G-Force for the Y-axis
-    const forceData = sensorData.map(row => {
-        // Calculate the total magnitude vector (sqrt(x^2 + y^2 + z^2))
-        const magnitude = Math.sqrt((row.x * row.x) + (row.y * row.y) + (row.z * row.z));
-        
-        // Divide by 9.81 to convert meters per second squared (m/s^2) into G-Force
-        return magnitude / 9.81; 
-    }); 
-    // -----------------------
-
-    // Build the new chart
     currentChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: timeLabels, // Clean seconds on X-Axis
+            labels: timeLabels, 
             datasets: [{
                 label: 'Total Acceleration (G-Force)',
-                data: forceData,    // Calculated G-Force on Y-Axis
+                data: forceData,    
                 borderColor: '#00f2fe', 
                 backgroundColor: 'rgba(0, 242, 254, 0.1)',
                 borderWidth: 3,
-                pointRadius: 0, // Hides individual dots for a smooth line
+                pointRadius: 0, 
                 pointHoverRadius: 6,
                 pointHoverBackgroundColor: '#4facfe',
-                tension: 0.4, // Adds a smooth curve
+                tension: 0.4, 
                 fill: true
             }]
         },
@@ -88,25 +126,16 @@ function renderWorkoutGraph(sensorData, chartTitle) {
                 },
                 legend: {
                     labels: { color: '#8b92a5', font: { family: "'Outfit', sans-serif" } }
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(17, 19, 26, 0.9)',
-                    titleColor: '#00f2fe',
-                    bodyColor: '#ffffff',
-                    borderColor: 'rgba(255, 255, 255, 0.1)',
-                    borderWidth: 1,
-                    padding: 12,
-                    displayColors: false
                 }
             },
             scales: {
                 x: { 
-                    title: { display: true, text: 'Time (Seconds)', color: '#8b92a5', font: { family: "'Outfit', sans-serif" } },
+                    title: { display: true, text: 'Time (Seconds)', color: '#8b92a5' },
                     ticks: { color: '#8b92a5', maxTicksLimit: 15 },
                     grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
                 },
                 y: { 
-                    title: { display: true, text: 'Acceleration (G-Force)', color: '#8b92a5', font: { family: "'Outfit', sans-serif" } },
+                    title: { display: true, text: 'Acceleration (G-Force)', color: '#8b92a5' },
                     beginAtZero: true,
                     ticks: { color: '#8b92a5' },
                     grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
@@ -116,38 +145,30 @@ function renderWorkoutGraph(sensorData, chartTitle) {
     });
 }
 
-/**
- * 3. Controller: Ties the UI to the Data and Chart functions
- */
-async function updateDashboard() {
-    // Get current values from the dropdowns
+// Dashboard Controller
+function updateDashboard() {
     const user = document.getElementById('userSelect').value;
     const week = document.getElementById('weekSelect').value;
     const workout = document.getElementById('workoutSelect').value;
     const set = document.getElementById('setSelect').value;
 
-    // Hide error message initially
     const errorDisplay = document.getElementById('errorDisplay');
     errorDisplay.style.display = 'none';
 
-    // Fetch the data
-    const data = await fetchSetData(user, week, workout, set);
+    // Fetch data instantly from local memory instead of a new HTTP request
+    const data = getFilteredData(user, week, workout, set);
 
     if (data && data.length > 0) {
-        // Format a nice title (e.g., "John - Week 1: Bench Press (Set 1)")
         const title = `${user.toUpperCase()} - ${week.toUpperCase()}: ${workout.toUpperCase()} (${set.toUpperCase()})`;
-        
-        // Draw the graph
         renderWorkoutGraph(data, title);
     } else {
-        // Show error if data is missing or path is wrong
         errorDisplay.style.display = 'flex';
         if (currentChart) currentChart.destroy();
     }
 }
 
-// 4. Initialization: Set up the event listener and load the first graph on page load
+// Event listeners
 document.getElementById('loadDataBtn').addEventListener('click', updateDashboard);
 
-// Load the default selected data immediately when the page opens
-window.onload = updateDashboard;
+// Trigger the massive file download the moment the web page opens
+window.onload = loadFullDataset;
