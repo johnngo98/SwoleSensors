@@ -1,2 +1,3 @@
-version,device name,recording epoch time,recording time,recording timezone,platform,appVersion,device id,sensors,sampleRateMs,standardisation,platform version
-3,SM-S938U,1774658131064,2026-03-28_00-35-31,America/New_York,android,1.54.2,a570d35c-40bd-4c5c-ab65-30ecb1ee1996,Accelerometer|Gyroscope|Annotation|TotalAcceleration|GyroscopeUncalibrated|AccelerometerUncalibrated,10|10||10|10|10,false,36
+version https://git-lfs.github.com/spec/v1
+oid sha256:0014f4be501aeaf1fa2f384b34016d725ef7ab37432deaf3b47dcddc95c7c84b
+size 398

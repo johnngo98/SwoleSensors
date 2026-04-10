@@ -1,2 +1,3 @@
-version,device name,recording epoch time,recording time,recording timezone,platform,appVersion,device id,sensors,sampleRateMs,standardisation,platform version
-3,iPhone 17 Pro Max,1775086422000,2026-04-01_18-33-42,America/Chicago,ios,1.56,d3ba1816-2a54-4eeb-9dce-a11f52f77cdb,Accelerometer|Gravity|Gyroscope|Annotation|GyroscopeUncalibrated|AccelerometerUncalibrated,10|10|10||10|10,false,26.3.1
+version https://git-lfs.github.com/spec/v1
+oid sha256:9ea99ec74d6a5d4318615dda0ef2124f00da15a4da32230f6327cc95744b35e1
+size 397
