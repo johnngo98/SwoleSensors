@@ -48,34 +48,44 @@ async function loadFullDataset() {
 function getFilteredData(user, week, workout, set) {
     if (globalWorkoutData.length === 0) return null;
 
-    // Format dropdown values to match CSV exactly
-    const targetPerson = user.toLowerCase();
-    const targetWeek = week.replace('week', ''); // "week1" -> "1"
-    let targetLift = workout.toLowerCase();
-    if (targetLift === 'overhead') targetLift = 'ohp'; // Map dropdown to CSV
-    const targetSet = set.replace('set', ''); // "set1" -> "1"
+    // Format dropdown values to match CSV exactly and securely
+    const targetPerson = user.toLowerCase().trim();
+    const targetWeek = week.replace('week', '').trim();
+    let targetLift = workout.toLowerCase().trim();
+    if (targetLift === 'overhead') targetLift = 'ohp';
+    const targetSet = set.replace('set', '').trim();
 
-    // Filter the massive array down to just the requested set
+    // Wrap row values in String().trim() in case there are stray spaces in the CSV
     const filteredRows = globalWorkoutData.filter(row => {
-        return row.Person && row.Person.toLowerCase() === targetPerson &&
-               row.Week === targetWeek &&
-               row.Lift && row.Lift.toLowerCase() === targetLift &&
-               row.Set === targetSet;
+        if (!row.Person || !row.Week || !row.Lift || !row.Set) return false;
+        
+        return String(row.Person).toLowerCase().trim() === targetPerson &&
+               String(row.Week).trim() === targetWeek &&
+               String(row.Lift).toLowerCase().trim() === targetLift &&
+               String(row.Set).trim() === targetSet;
     });
 
     if (filteredRows.length === 0) return null;
 
-    // Use BigInt to safely calculate the time elapsed from the 19-digit timestamps
-    const startTime = BigInt(filteredRows[0].time);
+    // Sort chronologically
+    filteredRows.sort((a, b) => {
+        // Extract just the integer part of the time safely
+        const timeA = BigInt(String(a.time).split('.')[0].trim());
+        const timeB = BigInt(String(b.time).split('.')[0].trim());
+        return timeA < timeB ? -1 : (timeA > timeB ? 1 : 0);
+    });
+
+    // 3. Process time safely
+    const startTime = BigInt(String(filteredRows[0].time).split('.')[0].trim());
 
     return filteredRows.map(row => {
-        const currentTime = BigInt(row.time);
-        const elapsedSeconds = Number(currentTime - startTime) / 1e9; // convert nanoseconds to seconds
+        const currentTime = BigInt(String(row.time).split('.')[0].trim());
+        const elapsedSeconds = Number(currentTime - startTime) / 1e9; // convert ns to s
         
-        // Calculate Total G-Force magnitude
-        const gFx = parseFloat(row.gFx);
-        const gFy = parseFloat(row.gFy);
-        const gFz = parseFloat(row.gFz);
+        // Calculate Total G-Force magnitude safely
+        const gFx = parseFloat(row.gFx) || 0;
+        const gFy = parseFloat(row.gFy) || 0;
+        const gFz = parseFloat(row.gFz) || 0;
         const magnitude = Math.sqrt((gFx * gFx) + (gFy * gFy) + (gFz * gFz));
         
         return {
