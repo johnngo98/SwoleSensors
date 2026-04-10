@@ -57,7 +57,7 @@ function getFilteredData(user, week, workout, set) {
 
     // Wrap row values in String().trim() in case there are stray spaces in the CSV
     const filteredRows = globalWorkoutData.filter(row => {
-        if (!row.Person || !row.Week || !row.Lift || !row.Set) return false;
+        if (!row.Person || !row.Week || !row.Lift || !row.Set || !row.time) return false;
         
         return String(row.Person).toLowerCase().trim() === targetPerson &&
                String(row.Week).trim() === targetWeek &&
