@@ -6,7 +6,7 @@ let globalWorkoutData = [];
 // Data Pipeline
 // Fetches the CSV only ONCE when the page loads
 async function loadFullDataset() {
-    const fileUrl = `./data/FullData/SwoleSensor_Week2_Full.csv`; 
+    const fileUrl = `./data/data_combined/SwoleSensor_Week2_Full.csv`; 
 
     try {
         console.log(`Downloading full dataset: ${fileUrl}...`);
