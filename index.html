@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SwoleSensors Dashboard</title>
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
@@ -31,9 +31,7 @@
                 <label for="userSelect">User</label>
                 <div class="select-wrapper">
                     <select id="userSelect">
-                        <option value="john">John</option>
-                        <option value="tyrus">Tyrus</option>
-                        <option value="jesse">Jesse</option>
+                        <option value="">Loading…</option>
                     </select>
                 </div>
             </div>
@@ -42,10 +40,7 @@
                 <label for="weekSelect">Timeline</label>
                 <div class="select-wrapper">
                     <select id="weekSelect">
-                        <option value="week1">Week 1</option>
-                        <option value="week2">Week 2</option>
-                        <option value="week3">Week 3</option>
-                        <option value="week4">Week 4</option>
+                        <option value="">Loading…</option>
                     </select>
                 </div>
             </div>
@@ -54,10 +49,7 @@
                 <label for="workoutSelect">Movement</label>
                 <div class="select-wrapper">
                     <select id="workoutSelect">
-                        <option value="bench">Bench Press</option>
-                        <option value="squat">Squat</option>
-                        <option value="deadlift">Deadlift</option>
-                        <option value="overhead">Overhead Press</option>
+                        <option value="">Loading…</option>
                     </select>
                 </div>
             </div>
@@ -66,10 +58,7 @@
                 <label for="setSelect">Set</label>
                 <div class="select-wrapper">
                     <select id="setSelect">
-                        <option value="set1">Set 1</option>
-                        <option value="set2">Set 2</option>
-                        <option value="set3">Set 3</option>
-                        <option value="set4">Set 4</option>
+                        <option value="">Loading…</option>
                     </select>
                 </div>
             </div>
@@ -84,7 +73,7 @@
 
         <div id="errorDisplay" class="error-message glass-panel">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            <span>Telemetry data not found for this selection.</span>
+            <span id="errorText">Loading dataset…</span>
         </div>
 
         <div class="chart-wrapper glass-panel">
