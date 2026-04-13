@@ -2,10 +2,10 @@
 
 let currentChart = null;
 
-// Cache: keyed by "Person-Week" → parsed row array
+// Cache: keyed by "Person-Week" parsed row array
 const dataCache = {};
 
-// Known roster — populates the first two dropdowns immediately on load.
+// Known roster populates the first two dropdowns immediately on load.
 const PEOPLE = ['Jesse', 'John', 'Tyrus'];
 const WEEKS  = ['1', '2'];
 
@@ -56,7 +56,7 @@ async function onPersonOrWeekChange() {
         const response = await fetch(url);
 
         if (!response.ok) {
-            throw new Error(`HTTP ${response.status} — file not found at ${url}`);
+            throw new Error(`HTTP ${response.status} - file not found at ${url}`);
         }
 
         const rawText = await response.text();
@@ -126,13 +126,13 @@ function onLiftOrSetChange() {
 
     if (chartData && chartData.length > 0) {
         const liftEl = document.getElementById('workoutSelect');
-        const title = `${person} — Week ${week}: ` +
+        const title = `${person} - Week ${week}: ` +
                       `${liftEl.options[liftEl.selectedIndex].text} (Set ${set})`;
         renderWorkoutGraph(chartData, title);
     } else {
         errorDisplay.style.display = 'flex';
         errorText.textContent =
-            `No telemetry rows for ${person} → Week ${week} → ${lift} → Set ${set}.`;
+            `No telemetry rows for ${person} -> Week ${week} -> ${lift} -> Set ${set}.`;
         if (currentChart) { currentChart.destroy(); currentChart = null; }
     }
 }
@@ -178,7 +178,7 @@ function setDropdownsLoading(loading) {
     ['workoutSelect', 'setSelect'].forEach(id => {
         const el = document.getElementById(id);
         if (loading) {
-            el.innerHTML = '<option value="">Loading…</option>';
+            el.innerHTML = '<option value="">Loading...</option>';
             el.disabled = true;
         } else {
             el.disabled = false;
@@ -204,7 +204,7 @@ function filterAndProcess(rows, lift, set) {
     const startTime = parseFloat(filtered[0].time);
 
     return filtered.map(row => {
-        const elapsed = (parseFloat(row.time) - startTime) / 1e9; // ns → s
+        const elapsed = (parseFloat(row.time) - startTime) / 1e9; // ns -> s
 
         const gFx = parseFloat(row.gFx) || 0;
         const gFy = parseFloat(row.gFy) || 0;
