@@ -94,8 +94,9 @@ window.onload = function () {
     fillSelect('measurementSelect', MEASUREMENTS.map(m => m.value),
                v => MEASUREMENTS.find(m => m.value === v)?.label || v);
 
-    document.getElementById('userSelect')       .addEventListener('change', onPersonOrWeekChange);
-    document.getElementById('weekSelect')       .addEventListener('change', onPersonOrWeekChange);
+    // Hide feedback when user manually switches person or week
+    document.getElementById('userSelect')       .addEventListener('change', () => { hideInsight(); onPersonOrWeekChange(); });
+    document.getElementById('weekSelect')       .addEventListener('change', () => { hideInsight(); onPersonOrWeekChange(); });
     document.getElementById('workoutSelect')    .addEventListener('change', onWorkoutChange);
     document.getElementById('setSelect')        .addEventListener('change', onLiftOrSetChange);
     document.getElementById('measurementSelect').addEventListener('change', onLiftOrSetChange);
@@ -112,7 +113,6 @@ async function onPersonOrWeekChange() {
     const cacheKey = `${person}-${week}`;
 
     hideError();
-    hideInsight();
 
     if (dataCache[cacheKey]) {
         populateLiftAndSetDropdowns(dataCache[cacheKey], person, week);
@@ -219,11 +219,8 @@ async function onFileUpload(e) {
         return;
     }
 
-    // Data get's shown 
+    // Data get's shown
     unlockedEntries.add(entry.filenameMatch);
-
-    // Feedback system
-    showInsight(entry.message);
 
     // Go and show that new uploaded data
     document.getElementById('userSelect').value = entry.person;
@@ -252,9 +249,12 @@ async function onFileUpload(e) {
     }
 
     onLiftOrSetChange();
+
+    // Feedback system — shown last so nothing overwrites it
+    showInsight(entry.message);
 }
 
-//Dropdown 
+//Dropdown
 const LIFT_LABELS = {
     'Bench'         : 'Bench Press',
     'bench'         : 'Bench Press',
@@ -361,7 +361,7 @@ function filterAndProcess(rows, lift, set, measurement, schema, person, week) {
     }));
 }
 
-//  Chart 
+//  Chart
 function renderWorkoutGraph(sensorData, chartTitle, measurement) {
     const ctx = document.getElementById('workoutChart').getContext('2d');
     if (currentChart) currentChart.destroy();
