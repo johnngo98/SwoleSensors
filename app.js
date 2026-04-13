@@ -17,7 +17,7 @@ const LOCKED_ENTRIES = [
         week          : '2',
         lift          : 'bench',
         set           : '1',
-        message       : 'Your Bench for Week 2 Set 1 had a lower peak velocity compared to last week — consider decreasing the weight to prevent fatigue. Your later reps for Bench Set 1 in Week 2 maintained a consistent velocity throughout the set.'
+        message       : 'Your Bench for Week 2 Set 1 had a lower peak velocity compared to last week, consider decreasing the weight to prevent fatigue. Your later reps for Bench Set 1 in Week 2 maintained a consistent velocity throughout the set.'
     },
     {
         filenameMatch : 'UploadExample2_Tyrus_OHPWeek2_Set3',
